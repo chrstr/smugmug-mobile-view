@@ -1,0 +1,118 @@
+<!doctype html>
+
+<head>
+  <title>Create URL</title>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+
+  <style type="text/css">
+    body
+    {
+      background: transparent url(bg.jpg) top right repeat;
+    }
+    #instructions,
+    #result
+    {
+      width: 700px;
+      border: 15px solid white;
+      border-radius: 15px;
+      margin: 10px 0px;
+      background-color: white;
+      box-shadow: 2px 2px 2px 2px #39393b;
+    }
+    input[type="text"]
+    {
+      width: 400px;
+    }
+    form
+    {
+      margin-left: 10px;
+    }
+  </style>
+
+  <div id="page">
+  
+     <div id="instructions">Cut and paste the url of the smugmug gallery:</div>
+   
+     <form data-bind="submit: submit">
+    
+      <br/><br/>
+      <input type="text" data-bind="value: url" />
+      <br/><br/>
+      <input type="submit" value="Get link" />
+      <br/><br/>
+    
+    </form>
+    
+    <div id="result" data-bind="visible: newUrl().length > 0, text: newUrl"></div>
+    
+  </div>
+  
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.2.min.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.1.0.js"></script>
+  
+  <script type="text/javascript">
+  
+    function CreateModel()
+    {
+      var self = this;
+      
+      self.url = ko.observable("");
+      
+      self.newUrl = ko.computed(function() {
+          var u = self.url();
+          if (u == null || u.trim() == "")
+          {
+            return "";
+          }
+          
+          // get rid of the hash
+          var hashIndex = u.lastIndexOf("#");
+          if (hashIndex != -1)
+          {
+            u = u.substring(0, hashIndex);
+          }
+          
+          // go to the last slash
+          var lastSlashIndex = u.lastIndexOf("/");
+          if (lastSlashIndex != -1)
+          {
+            u = u.substring(lastSlashIndex+1);
+          }
+          
+          // split the underscore
+          var split = u.split("_");
+          if (split.length != 2)
+          {
+            return "Sorry, couldn't build the url from the input...";
+          }
+          
+          return "http://turbo.christianstraub.com/photos.cs/gp.html?a=" + split[0] + "&k=" + split[1];
+        });
+        
+      self.submit = function() {}
+        
+      self._getParams = function(url)
+      {
+        var params = {};
+        
+        var match,
+            pl     = /\+/g,  // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query  = url;
+    
+        while (match = search.exec(query))
+           params[decode(match[1])] = decode(match[2]);
+        
+        return params;
+      }
+    }
+    
+    ko.applyBindings(new CreateModel());
+      
+  </script>
+
+</body>
